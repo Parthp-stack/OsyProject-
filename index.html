@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>CPU Scheduling Calculator</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="container">
+    <h1>CPU Scheduling Algorithms</h1>
+    
+    <!-- Process Input Form -->
+    <form id="processForm">
+      <label for="pname">Process Name:</label>
+      <input type="text" id="pname" placeholder="P1" required>
+      
+      <label for="bt">Burst Time:</label>
+      <input type="number" id="bt" required>
+      
+      <label for="at">Arrival Time:</label>
+      <input type="number" id="at" required>
+      
+      <label for="priority">Priority (if needed):</label>
+      <input type="number" id="priority">
+      
+      <button type="button" onclick="addProcess()">➕ Add Process</button>
+    </form>
+    
+    <!-- Process Table -->
+    <div class="table-wrapper">
+      <table id="processTable">
+        <thead>
+          <tr>
+            <th>Process</th>
+            <th>Burst Time</th>
+            <th>Arrival Time</th>
+            <th>Priority</th>
+            <th>Action</th> <!-- Delete button column -->
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </div>
+    
+    <!-- Control Buttons -->
+    <div class="controls">
+      <button onclick="calculate('fcfs')">FCFS</button>
+      <button onclick="calculate('sjf')">SJF</button>
+      <button onclick="calculate('srtf')">SRTF</button>
+      <button onclick="calculate('rr')">Round Robin</button>
+      <button onclick="calculate('priority')">Priority</button>
+    </div>
+    
+    <!-- Output -->
+    <div id="output"></div>
+  </div>
+  
+  <script src="script.js"></script>
+</body>
+</html>
