@@ -2,105 +2,1694 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>CPU Scheduling Calculator</title>
-  <link rel="stylesheet" href="style.css">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>OS Algorithms Lab & Visualizer | Microproject</title>
+  <style>
+    /* Inlined styles ensuring the single HTML file runs standalone without external dependencies */
+    :root {
+      --primary: #1976d2;
+      --primary-hover: #1565c0;
+      --secondary: #6c757d;
+      --success: #2e7d32;
+      --success-bg: #e8f5e9;
+      --danger: #c62828;
+      --danger-bg: #ffebee;
+      --warning: #f57f17;
+      --warning-bg: #fffde7;
+      --info: #0288d1;
+      --info-bg: #e1f5fe;
+      --bg-main: #f0f4f8;
+      --card-bg: #ffffff;
+      --text-main: #212529;
+      --text-muted: #555e68;
+      --border-color: #dbe2ea;
+      --radius: 10px;
+      --shadow: 0 4px 14px rgba(0, 0, 0, 0.08);
+    }
+    * { box-sizing: border-box; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif;
+      background-color: var(--bg-main);
+      color: var(--text-main);
+      margin: 0;
+      padding: 12px;
+      line-height: 1.5;
+    }
+    .main-wrapper { max-width: 1050px; margin: 0 auto; }
+    .header-container {
+      background: linear-gradient(135deg, #0d47a1 0%, #1976d2 100%);
+      color: white;
+      padding: 22px 20px 18px;
+      border-radius: var(--radius);
+      margin-bottom: 18px;
+      box-shadow: var(--shadow);
+      text-align: center;
+    }
+    .header-container h1 { margin: 0 0 6px 0; font-size: 1.75rem; letter-spacing: -0.5px; }
+    .header-container p { margin: 0; opacity: 0.9; font-size: 0.95rem; }
+    .nav-tabs {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 20px;
+      background: #ffffff;
+      padding: 8px;
+      border-radius: var(--radius);
+      box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+    }
+    .tab-btn {
+      flex: 1 1 180px;
+      padding: 12px 14px;
+      border: 1px solid transparent;
+      border-radius: 8px;
+      background: #f8fafc;
+      color: var(--text-muted);
+      font-size: 0.95rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+    .tab-btn:hover { background: #eef3f9; color: var(--primary); }
+    .tab-btn.active {
+      background: var(--primary);
+      color: white;
+      border-color: var(--primary);
+      box-shadow: 0 3px 8px rgba(25, 118, 210, 0.35);
+    }
+    .tab-content { display: none; }
+    .tab-content.active { display: block; animation: fadeIn 0.25s ease-in-out; }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(4px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .card {
+      background: var(--card-bg);
+      padding: 20px;
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      margin-bottom: 20px;
+      border: 1px solid var(--border-color);
+    }
+    .card-title {
+      margin-top: 0;
+      margin-bottom: 15px;
+      font-size: 1.25rem;
+      color: #1a202c;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      border-bottom: 2px solid #f1f5f9;
+      padding-bottom: 10px;
+    }
+    form { display: flex; flex-wrap: wrap; gap: 12px; margin-bottom: 15px; }
+    .form-group { flex: 1 1 200px; display: flex; flex-direction: column; gap: 5px; }
+    label { font-size: 0.85rem; font-weight: 600; color: #4a5568; }
+    input[type="text"], input[type="number"], select {
+      padding: 9px 12px;
+      border: 1.5px solid var(--border-color);
+      border-radius: 6px;
+      font-size: 0.95rem;
+      width: 100%;
+    }
+    input:focus, select:focus {
+      outline: none;
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(25, 118, 210, 0.15);
+    }
+    .btn-row { display: flex; flex-wrap: wrap; gap: 8px; margin: 12px 0; }
+    button {
+      padding: 9px 16px;
+      border: none;
+      border-radius: 6px;
+      background: var(--primary);
+      color: white;
+      font-size: 0.9rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.2s, transform 0.1s;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+    }
+    button:hover { background: var(--primary-hover); }
+    button:active { transform: scale(0.98); }
+    button.btn-secondary { background: #64748b; }
+    button.btn-secondary:hover { background: #475569; }
+    button.btn-success { background: #2e7d32; }
+    button.btn-success:hover { background: #1b5e20; }
+    button.btn-warning { background: #ed6c02; }
+    button.btn-warning:hover { background: #e65100; }
+    button.btn-danger { background: #d32f2f; }
+    button.btn-danger:hover { background: #b71c1c; }
+    button.btn-outline {
+      background: transparent;
+      color: var(--primary);
+      border: 1.5px solid var(--primary);
+    }
+    button.btn-outline:hover { background: #ebf5ff; }
+    .table-wrapper {
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+      margin: 14px 0;
+      border-radius: 8px;
+      border: 1px solid var(--border-color);
+    }
+    table { width: 100%; border-collapse: collapse; background: white; min-width: 480px; }
+    th, td { padding: 10px 12px; border: 1px solid var(--border-color); text-align: center; font-size: 0.9rem; }
+    th { background-color: #f8fafc; color: #334155; font-weight: 600; }
+    tr:nth-child(even) td { background-color: #fafbfc; }
+    .matrix-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 16px;
+      margin: 15px 0;
+    }
+    .matrix-card {
+      background: #f8fafc;
+      padding: 14px;
+      border-radius: 8px;
+      border: 1px solid var(--border-color);
+    }
+    .matrix-card h4 { margin: 0 0 10px 0; color: #1e293b; font-size: 0.95rem; }
+    .matrix-input-table { min-width: unset; width: 100%; }
+    .matrix-input-table input {
+      width: 50px;
+      text-align: center;
+      padding: 6px;
+      font-size: 0.9rem;
+      border: 1px solid #cbd5e1;
+      border-radius: 4px;
+    }
+    .log-box {
+      background: #f8fafc;
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      padding: 14px;
+      margin-top: 15px;
+      max-height: 400px;
+      overflow-y: auto;
+      font-family: monospace, sans-serif;
+      font-size: 0.9rem;
+    }
+    .step-card {
+      background: white;
+      border-left: 4px solid var(--primary);
+      padding: 10px 14px;
+      border-radius: 4px;
+      margin-bottom: 8px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+    }
+    .step-card.success { border-left-color: var(--success); }
+    .step-card.fail { border-left-color: var(--danger); }
+    .badge {
+      display: inline-block;
+      padding: 4px 10px;
+      border-radius: 20px;
+      font-size: 0.8rem;
+      font-weight: 700;
+      letter-spacing: 0.3px;
+    }
+    .badge-success { background: var(--success-bg); color: var(--success); border: 1px solid rgba(46, 125, 50, 0.3); }
+    .badge-danger { background: var(--danger-bg); color: var(--danger); border: 1px solid rgba(198, 40, 40, 0.3); }
+    .badge-info { background: var(--info-bg); color: var(--info); border: 1px solid rgba(2, 136, 209, 0.3); }
+    .badge-warning { background: var(--warning-bg); color: #b78103; border: 1px solid rgba(245, 127, 23, 0.3); }
+    .status-banner {
+      padding: 14px 18px;
+      border-radius: 8px;
+      margin: 15px 0;
+      font-size: 1.05rem;
+      font-weight: 600;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    .status-banner.safe { background: #e8f5e9; color: #1b5e20; border: 1.5px solid #a5d6a7; }
+    .status-banner.unsafe { background: #ffebee; color: #b71c1c; border: 1.5px solid #ef9a9a; }
+    #gantt-chart { margin-top: 15px; overflow-x: auto; -webkit-overflow-scrolling: touch; padding: 10px 0; }
+    .gantt-container { display: flex; align-items: center; min-width: 400px; }
+    .gantt-block {
+      border: 1px solid #1e293b;
+      padding: 8px 12px;
+      margin: 1px;
+      background: #4caf50;
+      color: white;
+      text-align: center;
+      border-radius: 4px;
+      font-weight: bold;
+      font-size: 0.9rem;
+      min-width: 48px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    .gantt-block small { display: block; font-size: 0.75rem; font-weight: normal; opacity: 0.9; }
+    .paging-grid-container { overflow-x: auto; -webkit-overflow-scrolling: touch; margin: 15px 0; padding: 4px; }
+    .paging-table { border-collapse: separate; border-spacing: 4px; min-width: 500px; }
+    .paging-table th, .paging-table td {
+      width: 46px;
+      height: 42px;
+      padding: 2px;
+      text-align: center;
+      vertical-align: middle;
+      font-size: 0.9rem;
+      font-weight: 600;
+      border-radius: 4px;
+      border: 1px solid #cbd5e1;
+    }
+    .paging-header-cell { background: #1e293b !important; color: #ffffff !important; }
+    .frame-cell { background: #ffffff; color: #334155; }
+    .frame-cell.new-page { background: #e3f2fd; color: #0d47a1; font-weight: 700; border: 2px solid #1976d2; }
+    .cell-hit { background: #e8f5e9 !important; color: #1b5e20 !important; font-weight: bold; }
+    .cell-fault { background: #ffebee !important; color: #b71c1c !important; font-weight: bold; }
+    .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 12px; margin: 15px 0; }
+    .stat-card { background: #f8fafc; border: 1px solid var(--border-color); border-radius: 8px; padding: 12px; text-align: center; }
+    .stat-value { font-size: 1.4rem; font-weight: 700; color: var(--primary); margin-top: 4px; }
+    .stat-label { font-size: 0.8rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; }
+    .callout { padding: 14px 16px; border-radius: 8px; margin: 12px 0; border-left: 5px solid; }
+    .callout-info { background: var(--info-bg); border-left-color: var(--info); color: #01579b; }
+    .callout-tip { background: #fff8e1; border-left-color: #ffa000; color: #5d4037; }
+    .callout-trick { background: #f3e5f5; border-left-color: #8e24aa; color: #4a148c; }
+    .theory-accordion { margin: 10px 0; border: 1px solid var(--border-color); border-radius: 8px; overflow: hidden; }
+    .theory-accordion details { background: white; border-bottom: 1px solid var(--border-color); }
+    .theory-accordion details:last-child { border-bottom: none; }
+    .theory-accordion summary {
+      padding: 14px 16px;
+      font-weight: 600;
+      cursor: pointer;
+      background: #f8fafc;
+      color: #1e293b;
+      outline: none;
+      user-select: none;
+    }
+    .theory-accordion summary:hover { background: #f1f5f9; }
+    .theory-accordion .details-content { padding: 16px; font-size: 0.95rem; line-height: 1.6; color: #334155; }
+    @media (max-width: 768px) {
+      body { padding: 8px; }
+      .header-container { padding: 16px 12px; }
+      .header-container h1 { font-size: 1.4rem; }
+      .nav-tabs { gap: 6px; }
+      .tab-btn { flex: 1 1 100%; padding: 10px 12px; font-size: 0.9rem; }
+      .card { padding: 14px; }
+      form .form-group { flex: 1 1 100%; }
+      .matrix-grid { grid-template-columns: 1fr; }
+      .btn-row button { flex: 1 1 auto; font-size: 0.85rem; padding: 8px 12px; }
+    }
+  </style>
 </head>
 <body>
-  <div class="container">
-    <h1>CPU Scheduling Algorithms</h1>
+  <div class="main-wrapper">
     
-    <!-- Process Input Form -->
-    <form id="processForm">
-      <label for="pname">Process Name:</label>
-      <input type="text" id="pname" placeholder="P1" required>
-      
-      <label for="bt">Burst Time:</label>
-      <input type="number" id="bt" required>
-      
-      <label for="at">Arrival Time:</label>
-      <input type="number" id="at" required>
-      
-      <label for="priority">Priority (if needed):</label>
-      <input type="number" id="priority">
-      
-      <button type="button" onclick="addProcess()">➕ Add Process</button>
-    </form>
-    
-    <!-- Process Table -->
-    <div class="table-wrapper">
-      <table id="processTable">
-        <thead>
-          <tr>
-            <th>Process</th>
-            <th>Burst Time</th>
-            <th>Arrival Time</th>
-            <th>Priority</th>
-            <th>Action</th> <!-- Delete button column -->
-          </tr>
-        </thead>
-        <tbody></tbody>
-      </table>
-    </div>
-    
-    <!-- Control Buttons -->
-    <div class="controls">
-      <button onclick="calculate('fcfs')">FCFS</button>
-      <button onclick="calculate('sjf')">SJF</button>
-      <button onclick="calculate('srtf')">SRTF</button>
-      <button onclick="calculate('rr')">Round Robin</button>
-      <button onclick="calculate('priority')">Priority</button>
-    </div>
+    <!-- Top Header Banner -->
+    <header class="header-container">
+      <h1>Operating System Algorithms Lab</h1>
+      <p>Interactive Simulator & Visualizer for CPU Scheduling, Deadlock Avoidance (Banker's), and Paging Algorithms</p>
+    </header>
 
-    <!-- Algorithm Info Table -->
-<h3>Algorithm Info</h3>
-<table id="algoInfo">
-  <thead>
-    <tr>
-      <th>Algorithm</th>
-      <th>Type</th>
-      <th>Explanation / Downside</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <td>FCFS</td>
-      <td>Non-Preemptive</td>
-      <td>Long waiting time for short processes (convoy effect)</td>
-    </tr>
-    <tr>
-      <td>SJF</td>
-      <td>Non-Preemptive</td>
-      <td>Can cause starvation for longer processes</td>
-    </tr>
-    <tr>
-      <td>SRTF</td>
-      <td>Preemptive</td>
-      <td>High context switching overhead; shorter processes get priority</td>
-    </tr>
-    <tr>
-      <td>Round Robin (RR)</td>
-      <td>Preemptive</td>
-      <td>Time quantum choice affects performance; too small → many switches, too large → behaves like FCFS</td>
-    </tr>
-    <tr>
-      <td>Priority</td>
-      <td>Non-Preemptive / Preemptive</td>
-      <td>Can cause starvation for low-priority processes; preemption optional</td>
-    </tr>
-  </tbody>
-</table>
+    <!-- Navigation Tabs -->
+    <nav class="nav-tabs" role="tablist">
+      <button class="tab-btn active" id="tab-btn-tab-cpu" onclick="switchTab('tab-cpu')">
+        🖥️ CPU Scheduling
+      </button>
+      <button class="tab-btn" id="tab-btn-tab-banker" onclick="switchTab('tab-banker')">
+        🏦 Banker's Algorithm
+      </button>
+      <button class="tab-btn" id="tab-btn-tab-paging" onclick="switchTab('tab-paging')">
+        📄 Paging & Replacement
+      </button>
+      <button class="tab-btn" id="tab-btn-tab-theory" onclick="switchTab('tab-theory')">
+        💡 Theory, Tricks & Viva
+      </button>
+    </nav>
 
-    <div class="results">
-  <h2>Results</h2>
-  <div id="gantt-chart"></div>
-  <div id="results-table"></div>
-</div>
+    <!-- =================================================================== -->
+    <!-- TAB 1: CPU SCHEDULING (PRESERVED & ENHANCED)                        -->
+    <!-- =================================================================== -->
+    <section id="tab-cpu" class="tab-content active">
+      <div class="card">
+        <h2 class="card-title">⚙️ Process Configuration & Input</h2>
+        
+        <form id="processForm" onsubmit="event.preventDefault(); addProcess();">
+          <div class="form-group">
+            <label for="pname">Process Name:</label>
+            <input type="text" id="pname" placeholder="e.g. P1" required>
+          </div>
+          
+          <div class="form-group">
+            <label for="bt">Burst Time (BT):</label>
+            <input type="number" id="bt" min="1" placeholder="e.g. 4" required>
+          </div>
+          
+          <div class="form-group">
+            <label for="at">Arrival Time (AT):</label>
+            <input type="number" id="at" min="0" placeholder="e.g. 0" required>
+          </div>
+          
+          <div class="form-group">
+            <label for="priority">Priority (Lower = Higher):</label>
+            <input type="number" id="priority" min="1" placeholder="Optional (e.g. 1)">
+          </div>
 
-    
-    <!-- Output -->
-    <div id="output"></div>
+          <div style="flex: 1 1 100%; display: flex; gap: 8px; flex-wrap: wrap;">
+            <button type="submit" class="btn-success">➕ Add Process</button>
+            <button type="button" class="btn-outline" onclick="loadSampleProcesses()">📂 Load Sample Processes</button>
+            <button type="button" class="btn-danger" onclick="clearProcesses()">🗑️ Clear All</button>
+          </div>
+        </form>
+
+        <!-- Process Table -->
+        <h3>Ready Queue / Process List</h3>
+        <div class="table-wrapper">
+          <table id="processTable">
+            <thead>
+              <tr>
+                <th>Process</th>
+                <th>Burst Time</th>
+                <th>Arrival Time</th>
+                <th>Priority</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr><td colspan="5" style="color:#888;">No processes added yet. Click "+ Add Process" or "Load Sample Processes".</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Algorithm Control Buttons -->
+        <h3>Execute Scheduling Algorithm</h3>
+        <div class="btn-row">
+          <button onclick="calculate('fcfs')">Run FCFS</button>
+          <button onclick="calculate('sjf')">Run SJF</button>
+          <button onclick="calculate('srtf')">Run SRTF</button>
+          <button onclick="calculate('rr')">Run Round Robin (RR)</button>
+          <button onclick="calculate('priority')">Run Priority</button>
+        </div>
+      </div>
+
+      <!-- Results & Gantt Chart -->
+      <div class="card">
+        <h2 class="card-title">📊 Execution Results & Timeline</h2>
+        <div id="gantt-chart"></div>
+        <div id="results-table">
+          <p style="color:#64748b;font-style:italic;">Select an algorithm above to compute Completion Time, Turnaround Time, Waiting Time, and the Gantt Chart.</p>
+        </div>
+      </div>
+
+      <!-- CPU Scheduling Info Table -->
+      <div class="card">
+        <h2 class="card-title">📖 Algorithm Comparison Reference</h2>
+        <div class="table-wrapper">
+          <table id="algoInfo">
+            <thead>
+              <tr>
+                <th>Algorithm</th>
+                <th>Type</th>
+                <th>Criteria</th>
+                <th>Explanation / Trade-offs</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><strong>FCFS</strong></td>
+                <td>Non-Preemptive</td>
+                <td>Arrival Time</td>
+                <td>Simple FIFO queue. Suffers from the <strong>Convoy Effect</strong> (short processes wait behind long ones).</td>
+              </tr>
+              <tr>
+                <td><strong>SJF</strong></td>
+                <td>Non-Preemptive</td>
+                <td>Burst Time</td>
+                <td>Provably optimal for minimizing average waiting time, but can cause <strong>starvation</strong> for long jobs.</td>
+              </tr>
+              <tr>
+                <td><strong>SRTF</strong></td>
+                <td>Preemptive SJF</td>
+                <td>Remaining Burst Time</td>
+                <td>Preempts currently running process if a newly arrived process has shorter remaining time. High context switching.</td>
+              </tr>
+              <tr>
+                <td><strong>Round Robin</strong></td>
+                <td>Preemptive</td>
+                <td>Time Quantum</td>
+                <td>Fair time-sharing. Performance heavily depends on Time Quantum ($q$): too small causes high switching overhead; too large degenerates to FCFS.</td>
+              </tr>
+              <tr>
+                <td><strong>Priority</strong></td>
+                <td>Non-Preemptive / Preemptive</td>
+                <td>Priority Value</td>
+                <td>CPU allocated to highest priority process. Can cause indefinite blocking (starvation); solved via <strong>Aging</strong>.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- =================================================================== -->
+    <!-- TAB 2: BANKER'S ALGORITHM (DEADLOCK AVOIDANCE)                      -->
+    <!-- =================================================================== -->
+    <section id="tab-banker" class="tab-content">
+      <div class="card">
+        <h2 class="card-title">🏦 Banker's Algorithm (Deadlock Avoidance)</h2>
+        <p style="color:var(--text-muted);margin-top:-6px;">
+          Simulates Dijkstra's Banker's Algorithm to determine if the system is in a <strong>SAFE state</strong> and generates a valid <strong>Safe Sequence</strong>.
+        </p>
+
+        <!-- Quick Presets -->
+        <div class="btn-row">
+          <button class="btn-outline" onclick="loadBankerExample()">📘 Load Textbook Example (Galvin Safe)</button>
+          <button class="btn-outline" onclick="loadBankerUnsafeExample()">⚠️ Load Unsafe / Deadlock Example</button>
+          <button class="btn-secondary" onclick="initBankerInputs(bankerConfig.n, bankerConfig.m)">🔄 Reset Matrices</button>
+        </div>
+
+        <!-- Configuration Settings -->
+        <div style="background:#f8fafc;padding:12px;border-radius:8px;border:1px solid var(--border-color);margin:12px 0;display:flex;gap:12px;align-items:center;flex-wrap:wrap;">
+          <div style="display:inline-flex;align-items:center;gap:6px;">
+            <label for="banker-num-proc" style="margin:0;">Processes (n):</label>
+            <input type="number" id="banker-num-proc" min="1" max="8" value="5" style="width:60px;padding:4px 8px;">
+          </div>
+          <div style="display:inline-flex;align-items:center;gap:6px;">
+            <label for="banker-num-res" style="margin:0;">Resource Types (m):</label>
+            <input type="number" id="banker-num-res" min="1" max="5" value="3" style="width:60px;padding:4px 8px;">
+          </div>
+          <button onclick="initBankerInputs(parseInt(document.getElementById('banker-num-proc').value), parseInt(document.getElementById('banker-num-res').value))" class="btn-secondary" style="padding:6px 12px;font-size:0.85rem;">
+            ⚙️ Reconfigure Grid
+          </button>
+        </div>
+
+        <!-- Input Matrices Grid -->
+        <div class="matrix-grid">
+          <!-- Allocation Matrix Card -->
+          <div class="matrix-card">
+            <h4>1. Allocation Matrix [n × m]</h4>
+            <div id="banker-alloc-container" class="table-wrapper"></div>
+          </div>
+
+          <!-- Max Matrix Card -->
+          <div class="matrix-card">
+            <h4>2. Maximum Claim Matrix [n × m]</h4>
+            <div id="banker-max-container" class="table-wrapper"></div>
+          </div>
+
+          <!-- Available Vector Card -->
+          <div class="matrix-card">
+            <h4>3. Available Resources [1 × m]</h4>
+            <div id="banker-avail-container" class="table-wrapper"></div>
+          </div>
+        </div>
+
+        <!-- Action Button -->
+        <div class="btn-row">
+          <button class="btn-success" onclick="runBankerAlgorithm()" style="font-size:1rem;padding:12px 20px;">
+            🚀 Calculate Need Matrix & Check Safety
+          </button>
+        </div>
+
+        <!-- Need Matrix Output -->
+        <div style="margin-top:16px;">
+          <h4>4. Calculated Need Matrix ($Need = Max - Allocation$)</h4>
+          <div id="banker-need-container">
+            <p style="color:#64748b;font-style:italic;">Click "Calculate Need Matrix & Check Safety" above to evaluate.</p>
+          </div>
+        </div>
+
+        <!-- Safety Algorithm Results -->
+        <div id="banker-output"></div>
+
+        <!-- Resource Request Simulator -->
+        <div class="card" style="margin-top:20px;background:#fdfdfd;border:2px dashed #93c5fd;">
+          <h3 style="margin-top:0;color:#1e40af;">🔍 Test Resource-Request Algorithm</h3>
+          <p style="font-size:0.9rem;color:#475569;">
+            Check if an additional request by a specific process can be granted immediately without leading to an unsafe state.
+          </p>
+          <div style="display:flex;gap:12px;align-items:center;flex-wrap:wrap;margin:10px 0;">
+            <label for="banker-req-proc">Requesting Process:</label>
+            <select id="banker-req-proc" style="width:140px;"></select>
+            <div id="banker-req-vec-container" style="display:flex;align-items:center;"></div>
+            <button class="btn-primary" onclick="testResourceRequest()">Check If Grantable</button>
+          </div>
+          <div id="banker-req-result"></div>
+        </div>
+
+        <!-- Theory Callout for Banker's -->
+        <div class="callout callout-trick">
+          <strong>💡 Exam Shortcut & Banker's Tricks:</strong>
+          <ul>
+            <li><strong>Monotonic Growth of Work:</strong> During the safety check, the Work vector can <em>only increase or stay constant</em> ($Work_{new} = Work_{old} + Allocation$). It never decreases!</li>
+            <li><strong>The Deadlock Condition:</strong> If at any step the smallest Need of all unfinished processes exceeds Work, the system is permanently deadlocked or unsafe.</li>
+            <li><strong>Formula to Remember:</strong> $Need[i][j] = Max[i][j] - Allocation[i][j]$. Always check that $Allocation \le Max$.</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- =================================================================== -->
+    <!-- TAB 3: PAGING & PAGE REPLACEMENT ALGORITHMS                         -->
+    <!-- =================================================================== -->
+    <section id="tab-paging" class="tab-content">
+      <div class="card">
+        <h2 class="card-title">📄 Virtual Memory: Page Replacement Algorithms</h2>
+        <p style="color:var(--text-muted);margin-top:-6px;">
+          Simulate how the Operating System handles page faults and replaces pages in physical memory frames using <strong>FIFO</strong>, <strong>LRU</strong>, and <strong>Optimal</strong> algorithms.
+        </p>
+
+        <!-- Presets -->
+        <div class="btn-row">
+          <button class="btn-outline" onclick="loadPagingTextbookExample()">📘 Load Textbook Example (7, 0, 1, 2...)</button>
+          <button class="btn-outline" onclick="loadBeladyExample()">⚡ Load Belady's Anomaly Example</button>
+        </div>
+
+        <!-- Inputs Form -->
+        <form onsubmit="event.preventDefault(); runPageReplacement();">
+          <div class="form-group" style="flex:2 1 300px;">
+            <label for="paging-references">Page Reference String (comma or space separated):</label>
+            <input type="text" id="paging-references" value="7, 0, 1, 2, 0, 3, 0, 4, 2, 3, 0, 3, 2, 1, 2, 0, 1, 7, 0, 1" required>
+          </div>
+
+          <div class="form-group" style="flex:1 1 120px;">
+            <label for="paging-frames">Number of Frames:</label>
+            <input type="number" id="paging-frames" min="1" max="10" value="3" required>
+          </div>
+
+          <div class="form-group" style="flex:1 1 180px;">
+            <label for="paging-algo-select">Algorithm Selection:</label>
+            <select id="paging-algo-select">
+              <option value="all">📊 Compare All 3 Side-by-Side</option>
+              <option value="fifo">FIFO (First In First Out)</option>
+              <option value="lru">LRU (Least Recently Used)</option>
+              <option value="optimal">Optimal (Belady's Min)</option>
+            </select>
+          </div>
+
+          <div style="flex:1 1 100%;margin-top:6px;">
+            <button type="submit" class="btn-success" style="padding:10px 22px;">🚀 Run Simulation</button>
+          </div>
+        </form>
+
+        <!-- Paging Output Container -->
+        <div id="paging-output">
+          <p style="color:#64748b;font-style:italic;">Click "Run Simulation" to generate the step-by-step memory frame allocation grid.</p>
+        </div>
+
+        <!-- Theory Callout for Paging -->
+        <div class="callout callout-info" style="margin-top:20px;">
+          <strong>💡 Key Paging Formulas & Belady's Anomaly:</strong>
+          <ul>
+            <li><strong>Hit Ratio:</strong> $\frac{\text{Total Hits}}{\text{Total References}} \times 100\%$</li>
+            <li><strong>Fault (Miss) Ratio:</strong> $\frac{\text{Total Faults}}{\text{Total References}} \times 100\% = 100\% - \text{Hit Ratio}$</li>
+            <li><strong>Belady's Anomaly:</strong> For some page replacement algorithms (specifically FIFO), increasing the number of page frames can unexpectedly <em>increase</em> the number of page faults! (Stack algorithms like LRU and Optimal are strictly immune).</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- =================================================================== -->
+    <!-- TAB 4: THEORY, EXAM TRICKS & VIVA GUIDE                             -->
+    <!-- =================================================================== -->
+    <section id="tab-theory" class="tab-content">
+      <div class="card">
+        <h2 class="card-title">💡 Operating System Theory, Exam Tricks & Viva Guide</h2>
+
+        <div class="theory-accordion">
+          <!-- Item 1: Banker's Algorithm Detailed Theory -->
+          <details open>
+            <summary>🏦 1. Banker's Algorithm: Complete Theory & Mathematical Working</summary>
+            <div class="details-content">
+              <h4>What is Banker's Algorithm?</h4>
+              <p>Developed by <strong>Edsger Dijkstra</strong>, the Banker's Algorithm is a <strong>deadlock avoidance</strong> algorithm used in operating systems. It is named after banking systems, where a bank never allocates available cash in a way that it cannot satisfy the maximum need of at least one customer.</p>
+              
+              <h4>Four Essential Data Structures:</h4>
+              <ul>
+                <li><strong>Available Vector ($m$):</strong> If $Available[j] = k$, there are $k$ instances of resource type $R_j$ currently unassigned.</li>
+                <li><strong>Max Matrix ($n \times m$):</strong> If $Max[i][j] = k$, process $P_i$ may request at most $k$ instances of resource type $R_j$.</li>
+                <li><strong>Allocation Matrix ($n \times m$):</strong> If $Allocation[i][j] = k$, process $P_i$ currently holds $k$ instances of resource type $R_j$.</li>
+                <li><strong>Need Matrix ($n \times m$):</strong> $Need[i][j] = Max[i][j] - Allocation[i][j]$. Indicates remaining resources $P_i$ may need to finish execution.</li>
+              </ul>
+
+              <h4>The Safety Algorithm:</h4>
+              <ol>
+                <li>Let $Work = Available$ and $Finish[i] = \text{false}$ for all $i = 0, 1, \dots, n-1$.</li>
+                <li>Find an index $i$ such that:
+                  <br>• $Finish[i] == \text{false}$
+                  <br>• $Need[i] \le Work$
+                  <br>If no such $i$ exists, go to Step 4.</li>
+                <li>$Work = Work + Allocation[i]$, $Finish[i] = \text{true}$, append $P_i$ to Safe Sequence. Repeat Step 2.</li>
+                <li>If $Finish[i] == \text{true}$ for all $i$, the system is in a <strong>SAFE STATE</strong>. Otherwise, it is <strong>UNSAFE</strong>.</li>
+              </ol>
+            </div>
+          </details>
+
+          <!-- Item 2: Paging & Virtual Memory Detailed Theory -->
+          <details>
+            <summary>📄 2. Paging & Page Replacement Algorithms: Detailed Working</summary>
+            <div class="details-content">
+              <h4>What is Paging?</h4>
+              <p>Paging is a memory management scheme that eliminates the need for contiguous physical memory allocation. Logical memory is divided into fixed-size blocks called <strong>Pages</strong>, and physical memory is divided into same-sized blocks called <strong>Frames</strong>.</p>
+              
+              <h4>Page Fault (Miss) vs Page Hit:</h4>
+              <ul>
+                <li><strong>Page Hit:</strong> The referenced page is already resident in one of the physical memory frames. Memory access proceeds with zero I/O delay.</li>
+                <li><strong>Page Fault:</strong> The referenced page is not present in physical memory. The OS traps to kernel mode, initiates disk I/O to bring the page from backing store, and if frames are full, executes a <strong>Page Replacement Algorithm</strong> to evict a victim page.</li>
+              </ul>
+
+              <h4>The Three Page Replacement Algorithms:</h4>
+              <ul>
+                <li><strong>FIFO (First In First Out):</strong> Replaces the page that was brought into memory earliest. Low implementation overhead (uses a queue), but may evict heavily used pages and suffers from Belady's Anomaly.</li>
+                <li><strong>LRU (Least Recently Used):</strong> Replaces the page that has not been referenced for the longest period in the past. Requires hardware support (counters or stack) and never exhibits Belady's Anomaly.</li>
+                <li><strong>Optimal (OPT / MIN):</strong> Replaces the page that will not be used for the longest period in the future. Has the theoretical minimum possible page fault rate; used as an analytical benchmark because future references cannot be known in general-purpose OS.</li>
+              </ul>
+            </div>
+          </details>
+
+          <!-- Item 3: High-Yield Viva Questions -->
+          <details>
+            <summary>🎯 3. High-Yield Viva & Exam Questions (with Ideal Answers)</summary>
+            <div class="details-content">
+              <p><strong>Q1: What are the four Coffman conditions for deadlock?</strong><br>
+              <em>Answer:</em> 1. Mutual Exclusion, 2. Hold and Wait, 3. No Preemption, 4. Circular Wait. All four must hold simultaneously for a deadlock to occur.</p>
+
+              <p><strong>Q2: What is the difference between Deadlock Prevention and Deadlock Avoidance?</strong><br>
+              <em>Answer:</em> <strong>Deadlock Prevention</strong> eliminates deadlocks by ensuring that at least one of the 4 Coffman conditions can never hold. <strong>Deadlock Avoidance</strong> dynamically monitors resource allocation state (like Banker's algorithm) to ensure the system never enters an unsafe state.</p>
+
+              <p><strong>Q3: What is Belady's Anomaly and which algorithms suffer from it?</strong><br>
+              <em>Answer:</em> Belady's Anomaly is the phenomenon where adding more page frames leads to an <em>increase</em> in page faults. It can occur in FIFO, but never in Stack algorithms like LRU or Optimal.</p>
+
+              <p><strong>Q4: What is the Convoy Effect in CPU Scheduling?</strong><br>
+              <em>Answer:</em> In FCFS scheduling, when a CPU-intensive process with a large burst time executes, all shorter I/O-bound processes are forced to wait behind it, causing severe drop in CPU and device utilization.</p>
+
+              <p><strong>Q5: What is Thrashing in Virtual Memory?</strong><br>
+              <em>Answer:</em> A state where the CPU spends significantly more time swapping pages in and out of backing store (paging activity) than executing user processes, causing CPU utilization to collapse to near zero.</p>
+            </div>
+          </details>
+        </div>
+      </div>
+    </section>
+
   </div>
-  
-  <script src="script.js"></script>
+
+  <!-- Complete Inlined JavaScript Logic: 100% Standalone Execution -->
+  <script>
+    // Tab switching logic
+    function switchTab(tabId) {
+      document.querySelectorAll(".tab-content").forEach(el => el.classList.remove("active"));
+      document.querySelectorAll(".tab-btn").forEach(el => el.classList.remove("active"));
+
+      const targetTab = document.getElementById(tabId);
+      const targetBtn = document.getElementById("tab-btn-" + tabId);
+
+      if (targetTab) targetTab.classList.add("active");
+      if (targetBtn) targetBtn.classList.add("active");
+    }
+
+    // 1. CPU SCHEDULING
+    let processes = [];
+
+    function addProcess() {
+      const pnameInput = document.getElementById("pname");
+      const btInput = document.getElementById("bt");
+      const atInput = document.getElementById("at");
+      const prInput = document.getElementById("priority");
+
+      const pname = pnameInput.value.trim() || `P${processes.length + 1}`;
+      const bt = parseInt(btInput.value);
+      const at = parseInt(atInput.value);
+      const pr = prInput.value !== "" ? parseInt(prInput.value) : null;
+
+      if (isNaN(bt) || isNaN(at)) {
+        alert("Please enter valid Burst Time and Arrival Time.");
+        return;
+      }
+
+      processes.push({ pname, bt, at, pr });
+      updateTable();
+      document.getElementById("processForm").reset();
+      pnameInput.focus();
+    }
+
+    function deleteProcess(index) {
+      processes.splice(index, 1);
+      updateTable();
+    }
+
+    function clearProcesses() {
+      processes = [];
+      updateTable();
+      document.getElementById("results-table").innerHTML = "";
+      document.getElementById("gantt-chart").innerHTML = "";
+    }
+
+    function loadSampleProcesses() {
+      processes = [
+        { pname: "P1", bt: 4, at: 0, pr: 2 },
+        { pname: "P2", bt: 3, at: 1, pr: 1 },
+        { pname: "P3", bt: 1, at: 2, pr: 4 },
+        { pname: "P4", bt: 2, at: 3, pr: 3 },
+        { pname: "P5", bt: 5, at: 4, pr: 5 }
+      ];
+      updateTable();
+    }
+
+    function updateTable() {
+      const tbody = document.querySelector("#processTable tbody");
+      tbody.innerHTML = "";
+      if (processes.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="5" style="color:#888;">No processes added yet. Click "+ Add Process" or "Load Sample Processes".</td></tr>`;
+        return;
+      }
+
+      processes.forEach((p, i) => {
+        const row = `<tr>
+          <td><strong>${p.pname}</strong></td>
+          <td>${p.bt}</td>
+          <td>${p.at}</td>
+          <td>${p.pr ?? "-"}</td>
+          <td><button onclick="deleteProcess(${i})" class="btn-danger" style="padding:4px 8px;font-size:0.8rem;">❌</button></td>
+        </tr>`;
+        tbody.innerHTML += row;
+      });
+    }
+
+    function calculate(algo) {
+      if (processes.length === 0) {
+        alert("Please add at least one process first.");
+        return;
+      }
+
+      let output;
+      if (algo === "fcfs") {
+        output = fcfs(processes);
+      } else if (algo === "sjf") {
+        output = sjf(processes);
+      } else if (algo === "srtf") {
+        output = srtf(processes);
+      } else if (algo === "rr") {
+        let qInput = prompt("Enter Time Quantum for Round Robin:", "2");
+        if (qInput === null) return;
+        let quantum = parseInt(qInput);
+        if (isNaN(quantum) || quantum <= 0) {
+          alert("Invalid Time Quantum. Must be a positive integer.");
+          return;
+        }
+        output = rr(processes, quantum);
+      } else if (algo === "priority") {
+        const missingPriority = processes.some(p => p.pr === null || isNaN(p.pr));
+        if (missingPriority) {
+          alert("Note: One or more processes do not have a Priority specified. Treating missing priority as 999 (lowest).");
+        }
+        output = priority(processes);
+      }
+
+      if (output) {
+        displayResults(output.results, output.gantt);
+      }
+    }
+
+    function fcfs(procs) {
+      let time = 0;
+      let results = [];
+      let gantt = [];
+      let totalTAT = 0, totalWT = 0;
+      let sorted = [...procs].sort((a, b) => a.at - b.at);
+
+      sorted.forEach(p => {
+        if (time < p.at) {
+          gantt.push({ pid: "Idle", start: time, end: p.at, isIdle: true });
+          time = p.at;
+        }
+        let start = time;
+        time += p.bt;
+        let ct = time;
+        let tat = ct - p.at;
+        let wt = tat - p.bt;
+        let rt = start - p.at;
+
+        results.push({
+          pid: p.pname,
+          arrival: p.at,
+          burst: p.bt,
+          completion: ct,
+          tat, wt, rt
+        });
+
+        gantt.push({ pid: p.pname, start, end: ct });
+        totalTAT += tat;
+        totalWT += wt;
+      });
+
+      return { results, gantt };
+    }
+
+    function sjf(procs) {
+      let time = 0, completed = [];
+      let results = [], gantt = [];
+      let totalTAT = 0, totalWT = 0;
+
+      while (completed.length < procs.length) {
+        let available = procs.filter(p => !completed.includes(p) && p.at <= time);
+        if (available.length === 0) {
+          let nextArrival = Math.min(...procs.filter(p => !completed.includes(p)).map(p => p.at));
+          gantt.push({ pid: "Idle", start: time, end: nextArrival, isIdle: true });
+          time = nextArrival;
+          continue;
+        }
+
+        let shortest = available.reduce((a, b) => a.bt < b.bt ? a : b);
+        let start = time;
+        time += shortest.bt;
+        let ct = time, tat = ct - shortest.at, wt = tat - shortest.bt;
+        let rt = start - shortest.at;
+
+        results.push({
+          pid: shortest.pname,
+          arrival: shortest.at,
+          burst: shortest.bt,
+          completion: ct,
+          tat, wt, rt
+        });
+        gantt.push({ pid: shortest.pname, start, end: ct });
+        totalTAT += tat; totalWT += wt;
+
+        completed.push(shortest);
+      }
+
+      return { results, gantt };
+    }
+
+    function srtf(procs) {
+      let time = 0, completed = [], rem = procs.map(p => p.bt), n = procs.length;
+      let ct = Array(n).fill(0), started = Array(n).fill(-1);
+      let results = [], gantt = [];
+      let lastPid = null;
+
+      while (completed.length < n) {
+        let idx = -1, min = 1e9;
+        for (let i = 0; i < n; i++) {
+          if (procs[i].at <= time && rem[i] > 0 && rem[i] < min) {
+            min = rem[i]; idx = i;
+          }
+        }
+        if (idx === -1) {
+          if (lastPid !== "Idle") {
+            if (lastPid !== null) gantt[gantt.length - 1].end = time;
+            gantt.push({ pid: "Idle", start: time, end: null, isIdle: true });
+            lastPid = "Idle";
+          }
+          time++;
+          continue;
+        }
+
+        if (lastPid !== procs[idx].pname) {
+          if (lastPid !== null) gantt[gantt.length - 1].end = time;
+          gantt.push({ pid: procs[idx].pname, start: time, end: null });
+          lastPid = procs[idx].pname;
+        }
+
+        if (started[idx] === -1) { started[idx] = time; }
+        rem[idx]--; time++;
+
+        if (rem[idx] === 0) {
+          ct[idx] = time;
+          completed.push(procs[idx]);
+        }
+      }
+      if (gantt.length > 0) gantt[gantt.length - 1].end = time;
+
+      for (let i = 0; i < n; i++) {
+        let tat = ct[i] - procs[i].at;
+        let wt = tat - procs[i].bt;
+        let rt = (started[i] !== -1 ? started[i] : procs[i].at) - procs[i].at;
+        results.push({
+          pid: procs[i].pname,
+          arrival: procs[i].at,
+          burst: procs[i].bt,
+          completion: ct[i],
+          tat, wt, rt
+        });
+      }
+
+      return { results, gantt };
+    }
+
+    function rr(procs, q) {
+      let time = 0, rem = procs.map(p => p.bt), n = procs.length;
+      let ct = Array(n).fill(0), started = Array(n).fill(-1);
+      let results = [], gantt = [];
+      let done = 0;
+
+      while (done < n) {
+        let progressed = false;
+        for (let i = 0; i < n; i++) {
+          if (procs[i].at <= time && rem[i] > 0) {
+            let run = Math.min(q, rem[i]);
+            if (started[i] === -1) { started[i] = time; }
+            gantt.push({ pid: procs[i].pname, start: time, end: time + run });
+            time += run;
+            rem[i] -= run;
+            if (rem[i] === 0) { ct[i] = time; done++; }
+            progressed = true;
+          }
+        }
+        if (!progressed) {
+          let nextArrival = Math.min(...procs.filter((p, i) => rem[i] > 0).map(p => p.at));
+          if (nextArrival > time) {
+            gantt.push({ pid: "Idle", start: time, end: nextArrival, isIdle: true });
+            time = nextArrival;
+          } else {
+            time++;
+          }
+        }
+      }
+
+      for (let i = 0; i < n; i++) {
+        let tat = ct[i] - procs[i].at;
+        let wt = tat - procs[i].bt;
+        let rt = started[i] - procs[i].at;
+        results.push({
+          pid: procs[i].pname,
+          arrival: procs[i].at,
+          burst: procs[i].bt,
+          completion: ct[i],
+          tat, wt, rt
+        });
+      }
+
+      return { results, gantt };
+    }
+
+    function priority(procs) {
+      let time = 0, completed = [];
+      let results = [], gantt = [];
+
+      while (completed.length < procs.length) {
+        let available = procs.filter(p => !completed.includes(p) && p.at <= time);
+        if (available.length === 0) {
+          let nextArrival = Math.min(...procs.filter(p => !completed.includes(p)).map(p => p.at));
+          gantt.push({ pid: "Idle", start: time, end: nextArrival, isIdle: true });
+          time = nextArrival;
+          continue;
+        }
+
+        let chosen = available.reduce((a, b) => {
+          let prA = a.pr ?? 999;
+          let prB = b.pr ?? 999;
+          return prA < prB ? a : b;
+        });
+
+        let start = time;
+        time += chosen.bt;
+        let ct = time, tat = ct - chosen.at, wt = tat - chosen.bt, rt = start - chosen.at;
+
+        results.push({
+          pid: chosen.pname,
+          arrival: chosen.at,
+          burst: chosen.bt,
+          completion: ct,
+          tat, wt, rt
+        });
+        gantt.push({ pid: chosen.pname, start, end: ct });
+        completed.push(chosen);
+      }
+
+      return { results, gantt };
+    }
+
+    function displayResults(results, gantt) {
+      let table = `<div class="table-wrapper"><table border="1">
+        <thead>
+          <tr><th>Process</th><th>Arrival Time (AT)</th><th>Burst Time (BT)</th><th>Completion Time (CT)</th>
+          <th>Turnaround Time (TAT)</th><th>Waiting Time (WT)</th><th>Response Time (RT)</th></tr>
+        </thead><tbody>`;
+      let totalTAT = 0, totalWT = 0, totalRT = 0;
+
+      results.forEach(r => {
+        table += `<tr>
+          <td><strong>${r.pid}</strong></td><td>${r.arrival}</td><td>${r.burst}</td>
+          <td>${r.completion}</td><td>${r.tat}</td><td>${r.wt}</td><td>${r.rt}</td>
+        </tr>`;
+        totalTAT += r.tat;
+        totalWT += r.wt;
+        totalRT += r.rt;
+      });
+
+      table += `</tbody></table></div>`;
+
+      const avgTAT = (totalTAT / results.length).toFixed(2);
+      const avgWT = (totalWT / results.length).toFixed(2);
+      const avgRT = (totalRT / results.length).toFixed(2);
+
+      table += `<div class="stats-grid">
+        <div class="stat-card"><div class="stat-label">Average TAT</div><div class="stat-value">${avgTAT}</div></div>
+        <div class="stat-card"><div class="stat-label">Average WT</div><div class="stat-value">${avgWT}</div></div>
+        <div class="stat-card"><div class="stat-label">Average RT</div><div class="stat-value">${avgRT}</div></div>
+      </div>`;
+      document.getElementById("results-table").innerHTML = table;
+
+      let chart = `<h4>Timeline / Gantt Chart</h4><div class="gantt-container">`;
+      gantt.forEach(g => {
+        const bg = g.isIdle ? "#94a3b8" : "#2563eb";
+        chart += `<div class="gantt-block" style="background:${bg};">
+          ${g.pid}<br><small>${g.start} → ${g.end}</small>
+        </div>`;
+      });
+      chart += `</div>`;
+      document.getElementById("gantt-chart").innerHTML = chart;
+    }
+
+    // 2. BANKER'S ALGORITHM
+    let bankerConfig = { n: 5, m: 3 };
+
+    function getResourceName(j) {
+      return String.fromCharCode(65 + j);
+    }
+
+    function initBankerInputs(n = 5, m = 3) {
+      bankerConfig.n = n;
+      bankerConfig.m = m;
+
+      let allocHtml = `<table class="matrix-input-table"><thead><tr><th>PID</th>`;
+      for (let j = 0; j < m; j++) allocHtml += `<th>${getResourceName(j)}</th>`;
+      allocHtml += `</tr></thead><tbody>`;
+      for (let i = 0; i < n; i++) {
+        allocHtml += `<tr><td><strong>P${i}</strong></td>`;
+        for (let j = 0; j < m; j++) {
+          allocHtml += `<td><input type="number" min="0" id="banker-alloc-${i}-${j}" value="0"></td>`;
+        }
+        allocHtml += `</tr>`;
+      }
+      allocHtml += `</tbody></table>`;
+      document.getElementById("banker-alloc-container").innerHTML = allocHtml;
+
+      let maxHtml = `<table class="matrix-input-table"><thead><tr><th>PID</th>`;
+      for (let j = 0; j < m; j++) maxHtml += `<th>${getResourceName(j)}</th>`;
+      maxHtml += `</tr></thead><tbody>`;
+      for (let i = 0; i < n; i++) {
+        maxHtml += `<tr><td><strong>P${i}</strong></td>`;
+        for (let j = 0; j < m; j++) {
+          maxHtml += `<td><input type="number" min="0" id="banker-max-${i}-${j}" value="0"></td>`;
+        }
+        maxHtml += `</tr>`;
+      }
+      maxHtml += `</tbody></table>`;
+      document.getElementById("banker-max-container").innerHTML = maxHtml;
+
+      let availHtml = `<table class="matrix-input-table"><thead><tr>`;
+      for (let j = 0; j < m; j++) availHtml += `<th>${getResourceName(j)}</th>`;
+      availHtml += `</tr></thead><tbody><tr>`;
+      for (let j = 0; j < m; j++) {
+        availHtml += `<td><input type="number" min="0" id="banker-avail-${j}" value="0"></td>`;
+      }
+      availHtml += `</tr></tbody></table>`;
+      document.getElementById("banker-avail-container").innerHTML = availHtml;
+
+      const reqProcSelect = document.getElementById("banker-req-proc");
+      if (reqProcSelect) {
+        reqProcSelect.innerHTML = "";
+        for (let i = 0; i < n; i++) {
+          reqProcSelect.innerHTML += `<option value="${i}">Process P${i}</option>`;
+        }
+      }
+
+      const reqVecContainer = document.getElementById("banker-req-vec-container");
+      if (reqVecContainer) {
+        let reqVecHtml = "";
+        for (let j = 0; j < m; j++) {
+          reqVecHtml += `<label style="display:inline-flex;align-items:center;margin-right:8px;font-size:0.9rem;">
+            ${getResourceName(j)}: <input type="number" min="0" id="banker-req-${j}" value="0" style="width:50px;margin-left:4px;padding:4px;text-align:center;">
+          </label>`;
+        }
+        reqVecContainer.innerHTML = reqVecHtml;
+      }
+    }
+
+    function loadBankerExample() {
+      initBankerInputs(5, 3);
+      const alloc = [
+        [0, 1, 0],
+        [2, 0, 0],
+        [3, 0, 2],
+        [2, 1, 1],
+        [0, 0, 2]
+      ];
+      const max = [
+        [7, 5, 3],
+        [3, 2, 2],
+        [9, 0, 2],
+        [2, 2, 2],
+        [4, 3, 3]
+      ];
+      const avail = [3, 3, 2];
+
+      for (let i = 0; i < 5; i++) {
+        for (let j = 0; j < 3; j++) {
+          document.getElementById(`banker-alloc-${i}-${j}`).value = alloc[i][j];
+          document.getElementById(`banker-max-${i}-${j}`).value = max[i][j];
+        }
+      }
+      for (let j = 0; j < 3; j++) {
+        document.getElementById(`banker-avail-${j}`).value = avail[j];
+      }
+
+      document.getElementById("banker-req-proc").value = "1";
+      document.getElementById("banker-req-0").value = "1";
+      document.getElementById("banker-req-1").value = "0";
+      document.getElementById("banker-req-2").value = "2";
+
+      runBankerAlgorithm();
+    }
+
+    function loadBankerUnsafeExample() {
+      initBankerInputs(4, 3);
+      const alloc = [
+        [2, 1, 1],
+        [1, 2, 0],
+        [3, 1, 2],
+        [1, 1, 1]
+      ];
+      const max = [
+        [5, 4, 3],
+        [4, 4, 2],
+        [6, 3, 4],
+        [3, 3, 3]
+      ];
+      const avail = [1, 0, 0];
+
+      for (let i = 0; i < 4; i++) {
+        for (let j = 0; j < 3; j++) {
+          document.getElementById(`banker-alloc-${i}-${j}`).value = alloc[i][j];
+          document.getElementById(`banker-max-${i}-${j}`).value = max[i][j];
+        }
+      }
+      for (let j = 0; j < 3; j++) {
+        document.getElementById(`banker-avail-${j}`).value = avail[j];
+      }
+
+      runBankerAlgorithm();
+    }
+
+    function extractBankerState() {
+      const n = bankerConfig.n;
+      const m = bankerConfig.m;
+      let alloc = [], max = [], avail = [];
+
+      for (let i = 0; i < n; i++) {
+        alloc[i] = [];
+        max[i] = [];
+        for (let j = 0; j < m; j++) {
+          alloc[i][j] = parseInt(document.getElementById(`banker-alloc-${i}-${j}`).value) || 0;
+          max[i][j] = parseInt(document.getElementById(`banker-max-${i}-${j}`).value) || 0;
+        }
+      }
+      for (let j = 0; j < m; j++) {
+        avail[j] = parseInt(document.getElementById(`banker-avail-${j}`).value) || 0;
+      }
+
+      return { n, m, alloc, max, avail };
+    }
+
+    function runBankerAlgorithm() {
+      const { n, m, alloc, max, avail } = extractBankerState();
+
+      let need = [];
+      for (let i = 0; i < n; i++) {
+        need[i] = [];
+        for (let j = 0; j < m; j++) {
+          need[i][j] = max[i][j] - alloc[i][j];
+          if (need[i][j] < 0) {
+            alert(`Error: Allocation exceeds Max for Process P${i}, Resource ${getResourceName(j)}.`);
+            return;
+          }
+        }
+      }
+
+      let needHtml = `<div class="table-wrapper"><table class="matrix-input-table"><thead><tr><th>PID</th>`;
+      for (let j = 0; j < m; j++) needHtml += `<th>${getResourceName(j)}</th>`;
+      needHtml += `</tr></thead><tbody>`;
+      for (let i = 0; i < n; i++) {
+        needHtml += `<tr><td><strong>P${i}</strong></td>`;
+        for (let j = 0; j < m; j++) {
+          needHtml += `<td><span class="badge badge-info" style="font-size:0.95rem;">${need[i][j]}</span></td>`;
+        }
+        needHtml += `</tr>`;
+      }
+      needHtml += `</tbody></table></div>`;
+      document.getElementById("banker-need-container").innerHTML = needHtml;
+
+      let work = [...avail];
+      let finish = Array(n).fill(false);
+      let safeSeq = [];
+      let logHtml = "";
+
+      logHtml += `<div class="step-card"><strong>[Initialization]</strong> Initial Work = [${work.join(", ")}], Finish = [${finish.map(f => f ? "T" : "F").join(", ")}]</div>`;
+
+      let stepCount = 1;
+      let count = 0;
+
+      while (count < n) {
+        let found = false;
+        for (let i = 0; i < n; i++) {
+          if (!finish[i]) {
+            let possible = true;
+            let checks = [];
+            for (let j = 0; j < m; j++) {
+              checks.push(`${getResourceName(j)}: ${need[i][j]} ≤ ${work[j]}`);
+              if (need[i][j] > work[j]) {
+                possible = false;
+              }
+            }
+
+            if (possible) {
+              let oldWork = [...work];
+              for (let j = 0; j < m; j++) {
+                work[j] += alloc[i][j];
+              }
+              finish[i] = true;
+              safeSeq.push(`P${i}`);
+              found = true;
+              count++;
+
+              logHtml += `<div class="step-card success">
+                <strong>Step ${stepCount++}: Evaluating P${i}</strong><br>
+                • Condition Need ≤ Work: (${checks.join(", ")}) → <span class="badge badge-success">TRUE</span><br>
+                • Process P${i} finishes safely & releases allocation: [${alloc[i].join(", ")}]<br>
+                • Updated Work = [${oldWork.join(", ")}] + [${alloc[i].join(", ")}] = <strong>[${work.join(", ")}]</strong><br>
+                • Current Safe Sequence: [${safeSeq.join(" → ")}]
+              </div>`;
+              break;
+            }
+          }
+        }
+
+        if (!found) break;
+      }
+
+      const outputContainer = document.getElementById("banker-output");
+      if (safeSeq.length === n) {
+        outputContainer.innerHTML = `
+          <div class="status-banner safe">
+            <span>✅ <strong>SYSTEM IS IN A SAFE STATE!</strong></span>
+            <div>Safe Sequence: <span style="font-size:1.15rem;letter-spacing:1px;font-family:monospace;">${safeSeq.join(" ➔ ")}</span></div>
+          </div>
+          <h4>Step-by-Step Safety Algorithm Execution Trace:</h4>
+          <div class="log-box">${logHtml}</div>
+        `;
+      } else {
+        let deadlocked = [];
+        for (let i = 0; i < n; i++) {
+          if (!finish[i]) deadlocked.push(`P${i}`);
+        }
+        outputContainer.innerHTML = `
+          <div class="status-banner unsafe">
+            <span>⚠️ <strong>SYSTEM IS IN AN UNSAFE STATE! DEADLOCK DETECTED!</strong></span>
+            <div>The system cannot satisfy the remaining requirements of: <strong>${deadlocked.join(", ")}</strong>.</div>
+          </div>
+          <h4>Step-by-Step Safety Algorithm Execution Trace:</h4>
+          <div class="log-box">${logHtml}</div>
+        `;
+      }
+    }
+
+    function testResourceRequest() {
+      const { n, m, alloc, max, avail } = extractBankerState();
+      const procIndex = parseInt(document.getElementById("banker-req-proc").value);
+      let request = [];
+
+      for (let j = 0; j < m; j++) {
+        request[j] = parseInt(document.getElementById(`banker-req-${j}`).value) || 0;
+      }
+
+      let need = [];
+      for (let i = 0; i < n; i++) {
+        need[i] = [];
+        for (let j = 0; j < m; j++) {
+          need[i][j] = max[i][j] - alloc[i][j];
+        }
+      }
+
+      const reqResultContainer = document.getElementById("banker-req-result");
+
+      for (let j = 0; j < m; j++) {
+        if (request[j] > need[procIndex][j]) {
+          reqResultContainer.innerHTML = `
+            <div class="status-banner unsafe">
+              ❌ <strong>REQUEST DENIED (Step 1 Failed):</strong><br>
+              Process P${procIndex} requested ${request[j]} of Resource ${getResourceName(j)}, which exceeds its declared Maximum Need (${need[procIndex][j]}). Process has exceeded its maximum claim!
+            </div>`;
+          return;
+        }
+      }
+
+      for (let j = 0; j < m; j++) {
+        if (request[j] > avail[j]) {
+          reqResultContainer.innerHTML = `
+            <div class="status-banner unsafe">
+              ⏳ <strong>PROCESS MUST WAIT (Step 2 Failed):</strong><br>
+              Process P${procIndex} requested ${request[j]} of Resource ${getResourceName(j)}, but only ${avail[j]} is currently Available.
+            </div>`;
+          return;
+        }
+      }
+
+      let simAvail = [...avail];
+      let simAlloc = alloc.map(row => [...row]);
+      let simNeed = need.map(row => [...row]);
+
+      for (let j = 0; j < m; j++) {
+        simAvail[j] -= request[j];
+        simAlloc[procIndex][j] += request[j];
+        simNeed[procIndex][j] -= request[j];
+      }
+
+      let work = [...simAvail];
+      let finish = Array(n).fill(false);
+      let safeSeq = [];
+
+      let count = 0;
+      while (count < n) {
+        let found = false;
+        for (let i = 0; i < n; i++) {
+          if (!finish[i]) {
+            let possible = true;
+            for (let j = 0; j < m; j++) {
+              if (simNeed[i][j] > work[j]) {
+                possible = false;
+                break;
+              }
+            }
+            if (possible) {
+              for (let j = 0; j < m; j++) {
+                work[j] += simAlloc[i][j];
+              }
+              finish[i] = true;
+              safeSeq.push(`P${i}`);
+              found = true;
+              count++;
+              break;
+            }
+          }
+        }
+        if (!found) break;
+      }
+
+      if (safeSeq.length === n) {
+        reqResultContainer.innerHTML = `
+          <div class="status-banner safe">
+            🎉 <strong>REQUEST CAN BE GRANTED IMMEDIATELY!</strong><br>
+            Granting request [${request.join(", ")}] to Process P${procIndex} leaves the system in a SAFE state.<br>
+            Resulting Safe Sequence: <strong>${safeSeq.join(" ➔ ")}</strong>
+          </div>`;
+      } else {
+        reqResultContainer.innerHTML = `
+          <div class="status-banner unsafe">
+            🚫 <strong>REQUEST CANNOT BE GRANTED (Unsafe State):</strong><br>
+            Granting request [${request.join(", ")}] to Process P${procIndex} would leave the system in an UNSAFE state, risking Deadlock. P${procIndex} must wait!
+          </div>`;
+      }
+    }
+
+    // 3. PAGING & PAGE REPLACEMENT
+    function parsePageReferences() {
+      const rawInput = document.getElementById("paging-references").value;
+      const tokens = rawInput.split(/[\s,;]+/).filter(t => t.trim() !== "");
+      return tokens.map(t => parseInt(t)).filter(n => !isNaN(n));
+    }
+
+    function loadPagingTextbookExample() {
+      document.getElementById("paging-references").value = "7, 0, 1, 2, 0, 3, 0, 4, 2, 3, 0, 3, 2, 1, 2, 0, 1, 7, 0, 1";
+      document.getElementById("paging-frames").value = 3;
+      runPageReplacement();
+    }
+
+    function loadBeladyExample() {
+      document.getElementById("paging-references").value = "1, 2, 3, 4, 1, 2, 5, 1, 2, 3, 4, 5";
+      document.getElementById("paging-frames").value = 3;
+      alert("Belady's Anomaly loaded! Run with 3 frames (9 faults), then test with 4 frames (10 faults!) in FIFO.");
+      runPageReplacement();
+    }
+
+    function simulateFIFO(pages, numFrames) {
+      let frames = [];
+      let history = [];
+      let hits = 0, faults = 0;
+
+      for (let t = 0; t < pages.length; t++) {
+        const page = pages[t];
+        let isHit = false;
+        let replacedPage = null;
+
+        if (frames.includes(page)) {
+          isHit = true;
+          hits++;
+        } else {
+          faults++;
+          if (frames.length < numFrames) {
+            frames.push(page);
+          } else {
+            replacedPage = frames.shift();
+            frames.push(page);
+          }
+        }
+
+        history.push({ step: t + 1, page, frames: [...frames], isHit, replacedPage });
+      }
+
+      return { name: "FIFO (First In First Out)", pages, numFrames, history, hits, faults };
+    }
+
+    function simulateLRU(pages, numFrames) {
+      let frames = [];
+      let lastUsed = {};
+      let history = [];
+      let hits = 0, faults = 0;
+
+      for (let t = 0; t < pages.length; t++) {
+        const page = pages[t];
+        let isHit = false;
+        let replacedPage = null;
+
+        if (frames.includes(page)) {
+          isHit = true;
+          hits++;
+          lastUsed[page] = t;
+        } else {
+          faults++;
+          if (frames.length < numFrames) {
+            frames.push(page);
+            lastUsed[page] = t;
+          } else {
+            let lruPage = frames[0];
+            let minT = lastUsed[frames[0]];
+            for (let f of frames) {
+              if (lastUsed[f] < minT) {
+                minT = lastUsed[f];
+                lruPage = f;
+              }
+            }
+            replacedPage = lruPage;
+            let replaceIdx = frames.indexOf(lruPage);
+            frames[replaceIdx] = page;
+            lastUsed[page] = t;
+          }
+        }
+
+        history.push({ step: t + 1, page, frames: [...frames], isHit, replacedPage });
+      }
+
+      return { name: "LRU (Least Recently Used)", pages, numFrames, history, hits, faults };
+    }
+
+    function simulateOptimal(pages, numFrames) {
+      let frames = [];
+      let history = [];
+      let hits = 0, faults = 0;
+
+      for (let t = 0; t < pages.length; t++) {
+        const page = pages[t];
+        let isHit = false;
+        let replacedPage = null;
+
+        if (frames.includes(page)) {
+          isHit = true;
+          hits++;
+        } else {
+          faults++;
+          if (frames.length < numFrames) {
+            frames.push(page);
+          } else {
+            let farthestIdx = -1;
+            let victim = frames[0];
+
+            for (let f of frames) {
+              let nextUse = -1;
+              for (let k = t + 1; k < pages.length; k++) {
+                if (pages[k] === f) {
+                  nextUse = k;
+                  break;
+                }
+              }
+
+              if (nextUse === -1) {
+                victim = f;
+                farthestIdx = Infinity;
+                break;
+              } else if (nextUse > farthestIdx) {
+                farthestIdx = nextUse;
+                victim = f;
+              }
+            }
+
+            replacedPage = victim;
+            let replaceIdx = frames.indexOf(victim);
+            frames[replaceIdx] = page;
+          }
+        }
+
+        history.push({ step: t + 1, page, frames: [...frames], isHit, replacedPage });
+      }
+
+      return { name: "Optimal (OPT / Belady's Optimal)", pages, numFrames, history, hits, faults };
+    }
+
+    function renderPagingResult(sim) {
+      const total = sim.pages.length;
+      const hitRatio = ((sim.hits / total) * 100).toFixed(1);
+      const faultRatio = ((sim.faults / total) * 100).toFixed(1);
+
+      let html = `<div style="margin-top:16px;">
+        <h3>${sim.name} Results</h3>
+        <div class="stats-grid">
+          <div class="stat-card"><div class="stat-label">Total References</div><div class="stat-value">${total}</div></div>
+          <div class="stat-card"><div class="stat-label">Page Faults (Misses)</div><div class="stat-value" style="color:var(--danger);">${sim.faults}</div></div>
+          <div class="stat-card"><div class="stat-label">Page Hits</div><div class="stat-value" style="color:var(--success);">${sim.hits}</div></div>
+          <div class="stat-card"><div class="stat-label">Hit Ratio</div><div class="stat-value">${hitRatio}%</div></div>
+          <div class="stat-card"><div class="stat-label">Fault Ratio</div><div class="stat-value">${faultRatio}%</div></div>
+        </div>`;
+
+      html += `<h4>Visual Step-by-Step Frame Matrix:</h4>
+      <div class="paging-grid-container">
+        <table class="paging-table">
+          <thead>
+            <tr>
+              <th style="background:#334155;color:white;min-width:90px;">Page Ref</th>`;
+      sim.pages.forEach((p) => {
+        html += `<th class="paging-header-cell">${p}</th>`;
+      });
+      html += `</tr></thead><tbody>`;
+
+      for (let f = 0; f < sim.numFrames; f++) {
+        html += `<tr><td style="background:#f1f5f9;font-weight:bold;">Frame ${f + 1}</td>`;
+        sim.history.forEach(step => {
+          const pageInFrame = step.frames[f] !== undefined ? step.frames[f] : "-";
+          const isNew = step.frames[f] === step.page && !step.isHit;
+          const cellClass = isNew ? "frame-cell new-page" : "frame-cell";
+          html += `<td class="${cellClass}">${pageInFrame}</td>`;
+        });
+        html += `</tr>`;
+      }
+
+      html += `<tr><td style="background:#f1f5f9;font-weight:bold;">Status</td>`;
+      sim.history.forEach(step => {
+        if (step.isHit) {
+          html += `<td class="cell-hit" title="Page Hit (Found in Memory)">HIT</td>`;
+        } else {
+          const repText = step.replacedPage !== null ? ` (Replaced ${step.replacedPage})` : " (Empty Frame)";
+          html += `<td class="cell-fault" title="Page Fault${repText}">MISS</td>`;
+        }
+      });
+      html += `</tr></tbody></table></div>`;
+
+      return html;
+    }
+
+    function runPageReplacement() {
+      const pages = parsePageReferences();
+      const numFrames = parseInt(document.getElementById("paging-frames").value);
+      const algoChoice = document.getElementById("paging-algo-select").value;
+
+      if (pages.length === 0) {
+        alert("Please enter a valid page reference string (e.g., 7, 0, 1, 2, 0, 3...).");
+        return;
+      }
+      if (isNaN(numFrames) || numFrames <= 0) {
+        alert("Please enter a valid number of frames (>= 1).");
+        return;
+      }
+
+      const container = document.getElementById("paging-output");
+      container.innerHTML = "";
+
+      if (algoChoice === "all") {
+        const fifoRes = simulateFIFO(pages, numFrames);
+        const lruRes = simulateLRU(pages, numFrames);
+        const optRes = simulateOptimal(pages, numFrames);
+
+        let comparisonHtml = `
+          <div class="card" style="background:#f8fafc;border:2px solid var(--primary);">
+            <h3 style="margin-top:0;">📊 Algorithm Comparison Summary (${pages.length} References, ${numFrames} Frames)</h3>
+            <div class="table-wrapper">
+              <table border="1">
+                <thead>
+                  <tr>
+                    <th>Algorithm</th>
+                    <th>Page Faults</th>
+                    <th>Page Hits</th>
+                    <th>Hit Ratio</th>
+                    <th>Fault Ratio</th>
+                    <th>Performance Rank</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td><strong>FIFO</strong></td>
+                    <td style="color:var(--danger);font-weight:bold;">${fifoRes.faults}</td>
+                    <td style="color:var(--success);font-weight:bold;">${fifoRes.hits}</td>
+                    <td>${((fifoRes.hits / pages.length) * 100).toFixed(1)}%</td>
+                    <td>${((fifoRes.faults / pages.length) * 100).toFixed(1)}%</td>
+                    <td>${fifoRes.faults <= lruRes.faults ? "🥈 Good" : "🥉 Fair"}</td>
+                  </tr>
+                  <tr>
+                    <td><strong>LRU</strong></td>
+                    <td style="color:var(--danger);font-weight:bold;">${lruRes.faults}</td>
+                    <td style="color:var(--success);font-weight:bold;">${lruRes.hits}</td>
+                    <td>${((lruRes.hits / pages.length) * 100).toFixed(1)}%</td>
+                    <td>${((lruRes.faults / pages.length) * 100).toFixed(1)}%</td>
+                    <td>${lruRes.faults <= optRes.faults ? "🥇 High" : "🥈 Very Good"}</td>
+                  </tr>
+                  <tr>
+                    <td><strong>Optimal</strong></td>
+                    <td style="color:var(--danger);font-weight:bold;">${optRes.faults}</td>
+                    <td style="color:var(--success);font-weight:bold;">${optRes.hits}</td>
+                    <td>${((optRes.hits / pages.length) * 100).toFixed(1)}%</td>
+                    <td>${((optRes.faults / pages.length) * 100).toFixed(1)}%</td>
+                    <td>🏆 Benchmark (Minimum Possible Faults)</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        `;
+
+        comparisonHtml += renderPagingResult(fifoRes);
+        comparisonHtml += renderPagingResult(lruRes);
+        comparisonHtml += renderPagingResult(optRes);
+
+        container.innerHTML = comparisonHtml;
+      } else if (algoChoice === "fifo") {
+        container.innerHTML = renderPagingResult(simulateFIFO(pages, numFrames));
+      } else if (algoChoice === "lru") {
+        container.innerHTML = renderPagingResult(simulateLRU(pages, numFrames));
+      } else if (algoChoice === "optimal") {
+        container.innerHTML = renderPagingResult(simulateOptimal(pages, numFrames));
+      }
+    }
+
+    // Auto-init on page load
+    window.addEventListener("DOMContentLoaded", () => {
+      initBankerInputs(5, 3);
+      loadBankerExample();
+    });
+  </script>
 </body>
 </html>
